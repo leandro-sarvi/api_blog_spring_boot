@@ -18,6 +18,6 @@ public class Comments {
     private String email;
     private String body;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "publication_id",nullable = false)
+    @JoinColumn(name = "publication_id", nullable = false)
     private Publication publication;
 }

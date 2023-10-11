@@ -18,14 +18,14 @@ public class CommentController {
         CommentDTO commentSave = commentService.saveComment(id,commentDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(commentSave);
     }
-    @GetMapping("/comment/{id}")
-    public ResponseEntity<CommentDTO> findById(@PathVariable  Long id){
-        CommentDTO commentDTO = commentService.findById(id);
+    @GetMapping("/publication/{publicationId}/comment/{commentId}")
+    public ResponseEntity<CommentDTO> findById(@PathVariable  Long publicationId,@PathVariable Long commentId){
+        CommentDTO commentDTO = commentService.findById(publicationId,commentId);
         return  ResponseEntity.status(HttpStatus.OK).body(commentDTO);
     }
-    @DeleteMapping("/comment/{id}")
-    public ResponseEntity<String> deletById(@PathVariable Long id){
-        commentService.DeleteById(id);
+    @DeleteMapping("/publication/{publicationId}/comment/{commentId}")
+    public ResponseEntity<String> deleteById(@PathVariable Long publicationId,@PathVariable Long commentId){
+        commentService.DeleteById(publicationId, commentId);
         return ResponseEntity.status(HttpStatus.OK).body("comment successfully deleted");
     }
     /* *minuto 1:56*/

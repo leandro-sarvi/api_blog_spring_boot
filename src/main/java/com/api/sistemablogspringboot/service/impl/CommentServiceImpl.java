@@ -22,24 +22,36 @@ public class CommentServiceImpl implements ICommentService {
     public CommentDTO saveComment(Long publicationId, CommentDTO commentDTO) {
         Comments comments = mapEntity(commentDTO);
         Publication publication = publicationRepository.findById(publicationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Non-existent"));
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
         comments.setPublication(publication);
-        Comments newComment = commentRepository.save(comments);
-        return mapDTO(newComment);
+        Comments commentSave = commentRepository.save(comments);
+        return  mapDTO(commentSave);
     }
 
     @Override
-    public CommentDTO findById(Long id) {
-        Comments comments = commentRepository.findById(id)
-                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
-        CommentDTO commentDTO = mapDTO(comments);
-        return commentDTO;
-    }
-    @Override
-    public void DeleteById(Long id) {
-        Comments comments = commentRepository.findById(id)
+    public CommentDTO findById(Long commentId, Long publicationId) {
+        Comments comments = commentRepository.findById(commentId)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
-        commentRepository.deleteById(id);
+        Publication publication = publicationRepository.findById(publicationId)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
+        if(!comments.getPublication().getId().equals(publication.getId())){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"The comment id does not match the publication id");
+        }
+        return mapDTO(comments);
+    }
+    /* * PARA LA BUSQUEDA Y ELIMINACION DE UN COMENTARIO, UTILIZAMOS LA DOBLE VERIFICACION
+    * VERIFICAMOS ID_COMMMENT Y ID_PUBLICATION*/
+
+    @Override
+    public void DeleteById(Long commentId, Long publicationId) {
+        Comments comments = commentRepository.findById(commentId)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
+        Publication publication = publicationRepository.findById(publicationId)
+                        .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
+        if(!comments.getPublication().getId().equals(publication.getId())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"The comment does not belong to the publication");
+        }
+        commentRepository.deleteById(commentId);
     }
     private CommentDTO mapDTO(Comments comments) {
         CommentDTO commentDTO = CommentDTO.builder()
