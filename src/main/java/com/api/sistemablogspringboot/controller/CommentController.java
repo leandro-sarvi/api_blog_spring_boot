@@ -29,6 +29,14 @@ public class CommentController {
         CommentDTO commentSave = commentService.saveComment(publicationId,commentDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(commentSave);
     }
+    @PutMapping("/publication/{publicationId}/comment/{commentId}")
+    public  ResponseEntity<CommentDTO> updateComment(
+            @PathVariable Long commentId,
+            @PathVariable Long publicationId,
+            @RequestBody CommentDTO commentDTO){
+        CommentDTO commentDTOUpdate = commentService.updateComment(commentId,publicationId,commentDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(commentDTOUpdate);
+    }
     @DeleteMapping("/publication/{publicationId}/comment/{commentId}")
     public ResponseEntity<String> deleteById(@PathVariable Long publicationId,@PathVariable Long commentId){
         commentService.DeleteById(publicationId, commentId);

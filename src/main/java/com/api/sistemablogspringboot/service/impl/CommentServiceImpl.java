@@ -52,19 +52,21 @@ public class CommentServiceImpl implements ICommentService {
 
     @Override
     public CommentDTO updateComment(Long publicationId, Long commentId, CommentDTO commentDTO) {
+        Comments comments = commentRepository.findById(commentId)
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent comment"));
         Publication publication = publicationRepository.findById(publicationId)
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
-        Comments comment = commentRepository.findById(commentId)
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
-        if(!comment.getPublication().getId().equals(publication.getId())){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"The comment id does not match the publication id");
+                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent publication"));
+        if(!comments.getPublication().getId().equals(publication.getId())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"The comment does not belong to the publication");
         }
-        comment.setPublication(publication);
-        comment.setBody(commentDTO.getBody());
-        comment.setName(commentDTO.getName());
-        comment.setEmail(commentDTO.getEmail());
-        commentRepository.save(comment);
-        return mapDTO(comment);
+        if(isBlankComment(commentDTO)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"CommentDTO is null");
+        }
+        comments.setBody(commentDTO.getBody());
+        comments.setName(commentDTO.getName());
+        comments.setEmail(commentDTO.getEmail());
+        Comments commentUpdate = commentRepository.save(comments);
+        return mapDTO(commentUpdate);
     }
     @Override
     public void DeleteById(Long commentId, Long publicationId) {
@@ -94,5 +96,11 @@ public class CommentServiceImpl implements ICommentService {
                 .body(commentDTO.getBody())
                 .build();
         return comments;
+    }
+    private Boolean isBlankComment(CommentDTO commentDTO){
+        return  commentDTO == null ||
+                commentDTO.getName() == null || commentDTO.getName().isBlank()||
+                commentDTO.getBody() == null || commentDTO.getBody().isBlank() ||
+                commentDTO.getEmail() == null || commentDTO.getEmail().isBlank();
     }
 }
