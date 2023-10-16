@@ -42,14 +42,16 @@ public class CommentServiceImpl implements ICommentService {
     }
     @Override
     public CommentDTO saveComment(Long publicationId, CommentDTO commentDTO) {
-        Comments comments = mapEntity(commentDTO);
         Publication publication = publicationRepository.findById(publicationId)
-                .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Non - existent"));
+        if(isBlankComment(commentDTO)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"CommentDTO is blank");
+        }
+        Comments comments = mapEntity(commentDTO);
         comments.setPublication(publication);
         Comments commentSave = commentRepository.save(comments);
-        return  mapDTO(commentSave);
+        return mapDTO(commentSave);
     }
-
     @Override
     public CommentDTO updateComment(Long publicationId, Long commentId, CommentDTO commentDTO) {
         Comments comments = commentRepository.findById(commentId)
@@ -98,9 +100,18 @@ public class CommentServiceImpl implements ICommentService {
         return comments;
     }
     private Boolean isBlankComment(CommentDTO commentDTO){
+        /*
+         * if(commentDTO == null ||
+         *                 commentDTO.getName() == null || commentDTO.getName().isBlank()||
+         *                 commentDTO.getBody() == null || commentDTO.getBody().isBlank() ||
+         *                 commentDTO.getEmail() == null || commentDTO.getEmail().isBlank()){
+         *             return true;
+         *         }
+         *         return  false;
+         */
         return  commentDTO == null ||
-                commentDTO.getName() == null || commentDTO.getName().isBlank()||
-                commentDTO.getBody() == null || commentDTO.getBody().isBlank() ||
-                commentDTO.getEmail() == null || commentDTO.getEmail().isBlank();
+                      commentDTO.getName() == null || commentDTO.getName().isBlank()||
+                      commentDTO.getBody() == null || commentDTO.getBody().isBlank() ||
+                      commentDTO.getEmail() == null || commentDTO.getEmail().isBlank();
     }
 }

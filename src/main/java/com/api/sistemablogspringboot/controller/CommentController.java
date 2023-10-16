@@ -42,5 +42,5 @@ public class CommentController {
         commentService.DeleteById(publicationId, commentId);
         return ResponseEntity.status(HttpStatus.OK).body("comment successfully deleted");
     }
-    /* *minuto 2:11*/
+    /* *minuto 2:40*/
 }
