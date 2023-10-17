@@ -5,6 +5,7 @@ import com.api.sistemablogspringboot.dto.PublicationResponse;
 import com.api.sistemablogspringboot.entities.Publication;
 import com.api.sistemablogspringboot.repository.IPublicationRepository;
 import com.api.sistemablogspringboot.service.IPublicationService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +18,8 @@ import java.util.List;
 
 @Service
 public class PublicationServiceImpl implements IPublicationService {
+    @Autowired
+    private ModelMapper modelMapper;
     @Autowired
     private IPublicationRepository publicationRepository;
 
@@ -76,19 +79,11 @@ public class PublicationServiceImpl implements IPublicationService {
     }
     //Funcion destinada a mapear un DTO
     private PublicationDTO mapDTO(Publication publication){
-        PublicationDTO publicationDTO = new PublicationDTO();
-        publicationDTO.setId(publication.getId());
-        publicationDTO.setTitle(publication.getTitle());
-        publicationDTO.setContent(publication.getContent());
-        publicationDTO.setDescription(publication.getDescription());
+        PublicationDTO publicationDTO = modelMapper.map(publication,PublicationDTO.class);
         return publicationDTO;
     }
     private Publication mapEntitie(PublicationDTO publicationDTO){
-        Publication publication = new Publication();
-
-        publication.setTitle(publicationDTO.getTitle());
-        publication.setContent(publicationDTO.getContent());
-        publication.setDescription(publicationDTO.getDescription());
+        Publication publication = modelMapper.map(publicationDTO, Publication.class);
         return publication;
     }
 
