@@ -25,7 +25,7 @@ public class PublicationServiceImpl implements IPublicationService {
 
     @Override
     public PublicationDTO createPublication(PublicationDTO publicationDTO) {
-        Publication publication = mapEntitie(publicationDTO);
+        Publication publication = mapEntity(publicationDTO);
 
         Publication newPublication = publicationRepository.save(publication);
 
@@ -52,26 +52,24 @@ public class PublicationServiceImpl implements IPublicationService {
 
         return publicationResponse;
     }
-
     @Override
     public PublicationDTO findById(Long id) {
         PublicationDTO publicationDTO = mapDTO(publicationRepository.
                 findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent")));
         return publicationDTO;
     }
-
-
     @Override
     public PublicationDTO updatePublication(PublicationDTO publicationDTO, Long id) {
         Publication publication = publicationRepository.findById(id)
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Publication non-existent"));
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
+        if(isBlankPublicDTO(publicationDTO)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Is blank publicationDTO");
+        }
         publication.setTitle(publicationDTO.getTitle());
-        publication.setContent(publicationDTO.getContent());
         publication.setDescription(publication.getDescription());
-        Publication publicationSave = publicationRepository.save(publication);
-        return mapDTO(publicationSave);
+        publication.setContent(publication.getContent());
+        return mapDTO(publication);
     }
-
     @Override
     public void deletePublication(Long id) {
         publicationRepository.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Id no existe"));
@@ -82,9 +80,14 @@ public class PublicationServiceImpl implements IPublicationService {
         PublicationDTO publicationDTO = modelMapper.map(publication,PublicationDTO.class);
         return publicationDTO;
     }
-    private Publication mapEntitie(PublicationDTO publicationDTO){
+    private Publication mapEntity(PublicationDTO publicationDTO){
         Publication publication = modelMapper.map(publicationDTO, Publication.class);
         return publication;
     }
-
+    private boolean isBlankPublicDTO(PublicationDTO publicationDTO){
+        return publicationDTO == null ||
+                publicationDTO.getDescription() == null || publicationDTO.getDescription().isBlank() ||
+                publicationDTO.getTitle() == null || publicationDTO.getTitle().isBlank() ||
+                publicationDTO.getContent() == null || publicationDTO.getContent().isBlank();
+    }
 }

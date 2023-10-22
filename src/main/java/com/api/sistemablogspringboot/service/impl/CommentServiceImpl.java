@@ -24,23 +24,31 @@ public class CommentServiceImpl implements ICommentService {
     private IPublicationRepository publicationRepository;
     /* * TO SEARCH AND DELETE A COMMENT, WE USE DOUBLE VERIFICATION
      * WE CHECK ID_COMMMENT AND ID_PUBLICATION*/
+
+
     @Override
-    public CommentDTO findById(Long commentId, Long publicationId) {
+    public CommentDTO findById(Long publicationId, Long commentId) {
         Comments comments = commentRepository.findById(commentId)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
         Publication publication = publicationRepository.findById(publicationId)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
         if(!comments.getPublication().getId().equals(publication.getId())){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"The comment id does not match the publication id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"he comment does not belong to the publication");
         }
+        return mapDTO(comments);
+    }
+    @Override
+    public CommentDTO findId(Long commentId) {
+        Comments comments = commentRepository.findById(commentId)
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
         return mapDTO(comments);
     }
     @Override
     public List<CommentDTO> findAll(Long publicationId) {
         Publication publication = publicationRepository.findById(publicationId)
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
-        List<CommentDTO> commentDTOList = publication.getComments().stream()
-                .map(comments -> mapDTO(comments)).toList();
+        List<CommentDTO> commentDTOList = commentRepository.findAll()
+                .stream().map(comments -> mapDTO(comments)).toList();
         return commentDTOList;
     }
 
@@ -49,7 +57,7 @@ public class CommentServiceImpl implements ICommentService {
         Publication publication = publicationRepository.findById(publicationId)
                 .orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent publication"));
         if(isBlankComment(commentDTO)){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"is blank commentDTO");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Is blank commentDTO");
         }
         Comments comments = mapEntity(commentDTO);
         comments.setPublication(publication);
@@ -94,15 +102,13 @@ public class CommentServiceImpl implements ICommentService {
         return comments;
     }
     private Boolean isBlankComment(CommentDTO commentDTO){
-        /*
-         * if(commentDTO == null ||
+        /* * if(commentDTO == null ||
          *                 commentDTO.getName() == null || commentDTO.getName().isBlank()||
          *                 commentDTO.getBody() == null || commentDTO.getBody().isBlank() ||
          *                 commentDTO.getEmail() == null || commentDTO.getEmail().isBlank()){
          *             return true;
          *         }
-         *         return  false;
-         */
+         *         return  false; */
         return  commentDTO == null ||
                       commentDTO.getName() == null || commentDTO.getName().isBlank()||
                       commentDTO.getBody() == null || commentDTO.getBody().isBlank() ||

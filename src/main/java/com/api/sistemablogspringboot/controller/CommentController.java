@@ -24,6 +24,11 @@ public class CommentController {
         CommentDTO commentDTO = commentService.findById(publicationId,commentId);
         return  ResponseEntity.status(HttpStatus.OK).body(commentDTO);
     }
+    @GetMapping("/comment/{commentId}")
+    public ResponseEntity<CommentDTO> findId(@PathVariable Long commentId){
+        CommentDTO commentDTO = commentService.findId(commentId);
+        return ResponseEntity.status(HttpStatus.OK).body(commentDTO);
+    }
     @PostMapping("/publication/{publicationId}/comment")
     public ResponseEntity<CommentDTO> save(@RequestBody CommentDTO commentDTO, @PathVariable Long publicationId){
         CommentDTO commentSave = commentService.saveComment(publicationId,commentDTO);

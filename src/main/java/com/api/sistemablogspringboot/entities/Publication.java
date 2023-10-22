@@ -1,18 +1,23 @@
 package com.api.sistemablogspringboot.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
 @Builder
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
 @Entity
-@Table(name = "publications")
+@Table(name = "publications",uniqueConstraints = { @UniqueConstraint(columnNames = { "title" }) })
 public class Publication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +28,7 @@ public class Publication {
     private String description;
     @Column(name = "content",nullable = false)
     private String content;
-    @OneToMany(mappedBy = "publication",cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Comments> comments = new HashSet<>();
+    @JsonBackReference
+    @OneToMany(targetEntity = Comments.class,fetch = FetchType.EAGER, mappedBy = "publication", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comments> comments;
 }
