@@ -29,11 +29,7 @@ public class PublicationServiceImpl implements IPublicationService {
         if(isBlankPublicDTO(publicationDTO)){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Is blank publicationDTO");
         }
-        Publication publication = Publication.builder()
-                .title(publicationDTO.getTitle())
-                .content(publicationDTO.getContent())
-                .description(publicationDTO.getDescription())
-                .build();
+        Publication publication = mapEntity(publicationDTO);
         Publication publicationSave = publicationRepository.save(publication);
         return mapDTO(publicationSave);
     }
