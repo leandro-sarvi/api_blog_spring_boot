@@ -37,7 +37,6 @@ public class PublicationServiceImpl implements IPublicationService {
         Publication publicationSave = publicationRepository.save(publication);
         return mapDTO(publicationSave);
     }
-
     @Override
     public PublicationResponse findAll(int pageNo, int pageSize,String orderBy,String sortDir){
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())?Sort.by(orderBy).ascending():Sort.by(orderBy).descending();
