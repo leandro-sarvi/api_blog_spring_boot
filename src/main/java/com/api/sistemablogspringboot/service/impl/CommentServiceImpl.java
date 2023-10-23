@@ -51,7 +51,6 @@ public class CommentServiceImpl implements ICommentService {
                 .stream().map(comments -> mapDTO(comments)).toList();
         return commentDTOList;
     }
-
     @Override
     public CommentDTO saveComment(Long publicationId, CommentDTO commentDTO) {
         Publication publication = publicationRepository.findById(publicationId)

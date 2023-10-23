@@ -23,16 +23,21 @@ public class PublicationServiceImpl implements IPublicationService {
     @Autowired
     private IPublicationRepository publicationRepository;
 
+
     @Override
     public PublicationDTO createPublication(PublicationDTO publicationDTO) {
-        Publication publication = mapEntity(publicationDTO);
-
-        Publication newPublication = publicationRepository.save(publication);
-
-        PublicationDTO responseDTO  = mapDTO(newPublication);
-
-        return responseDTO;
+        if(isBlankPublicDTO(publicationDTO)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Is blank publicationDTO");
+        }
+        Publication publication = Publication.builder()
+                .title(publicationDTO.getTitle())
+                .content(publicationDTO.getContent())
+                .description(publicationDTO.getDescription())
+                .build();
+        Publication publicationSave = publicationRepository.save(publication);
+        return mapDTO(publicationSave);
     }
+
     @Override
     public PublicationResponse findAll(int pageNo, int pageSize,String orderBy,String sortDir){
         Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())?Sort.by(orderBy).ascending():Sort.by(orderBy).descending();
@@ -49,7 +54,6 @@ public class PublicationServiceImpl implements IPublicationService {
         publicationResponse.setAllElements(publications.getTotalElements());
         publicationResponse.setAllPages(publications.getTotalPages());
         publicationResponse.setLast(publications.isLast());
-
         return publicationResponse;
     }
     @Override
@@ -59,23 +63,23 @@ public class PublicationServiceImpl implements IPublicationService {
         return publicationDTO;
     }
     @Override
-    public PublicationDTO updatePublication(PublicationDTO publicationDTO, Long id) {
-        Publication publication = publicationRepository.findById(id)
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
-        if(isBlankPublicDTO(publicationDTO)){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Is blank publicationDTO");
-        }
-        publication.setTitle(publicationDTO.getTitle());
-        publication.setDescription(publication.getDescription());
-        publication.setContent(publication.getContent());
-        return mapDTO(publication);
+    public PublicationDTO updatePublication(PublicationDTO publicationDTO, Long publicationId){
+    Publication publication = publicationRepository.findById(publicationId)
+            .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Non-existent"));
+    if(isBlankPublicDTO(publicationDTO)){
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"is blank publicationDTO");
+    }
+    publication.setTitle(publicationDTO.getTitle());
+    publication.setDescription(publicationDTO.getDescription());
+    publication.setContent(publicationDTO.getContent());
+    return mapDTO(publication);
     }
     @Override
     public void deletePublication(Long id) {
         publicationRepository.findById(id).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Id no existe"));
         publicationRepository.deleteById(id);
     }
-    //Funcion destinada a mapear un DTO
+    /* *Funcion destinada a mapear un DTO*/
     private PublicationDTO mapDTO(Publication publication){
         PublicationDTO publicationDTO = modelMapper.map(publication,PublicationDTO.class);
         return publicationDTO;
